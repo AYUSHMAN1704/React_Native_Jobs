@@ -6,8 +6,29 @@
       "@/*": [
         "./src/*"
       ],
+      "@/constants": [
+        "./constants"
+      ],
+      "@/constants/*": [
+        "./constants/*"
+      ],
+      "@/components": [
+        "./components"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/assets": [
+        "./assets"
+      ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "@/styles": [
+        "./styles"
+      ],
+      "@/styles/*": [
+        "./styles/*"
       ]
     }
   },

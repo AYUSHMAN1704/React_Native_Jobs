@@ -1,28 +1,49 @@
-import { Stack } from "expo-router";
-import { useCallback } from "react";
+import { useEffect } from 'react';
+import { Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
-SplashScreen.preventAutoHideAsync();
+export const unstable_settings = {
+  initialRouteName: "(app)",
+};
 
-const Layout = () => {
-    const [fontsLoaded] = useFonts({
-        DMBold: require('../assets/fonts/DMSans-Bold.ttf'),
-        DMMedium: require('../assets/fonts/DMSans-Medium.ttf'),
-        DMRegular: require('../assets/fonts/DMSans-Regular.ttf'),
-    });
+const InitialLayout = () => {
+  const [fontsLoaded] = useFonts({
+    DMBold: require("../assets/fonts/DMSans-Bold.ttf"),
+    DMMedium: require("../assets/fonts/DMSans-Medium.ttf"),
+    DMRegular: require("../assets/fonts/DMSans-Regular.ttf"),
+  });
 
-    const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-            await SplashScreen.hideAsync();
-        }
-    }, [fontsLoaded]);
+  const { session, initialized } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
-    if (!fontsLoaded) {
-        return null;
+  useEffect(() => {
+    if (!initialized || !fontsLoaded) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (session && inAuthGroup) {
+      router.replace('/home');
+    } else if (!session && !inAuthGroup) {
+      router.replace('/login');
     }
+  }, [session, initialized, fontsLoaded, segments]);
 
-    return <Stack onLayout={onLayoutRootView} />;
+  if (!fontsLoaded || !initialized) return null;
+
+  return (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(app)" options={{ headerShown: false }} />
+    </Stack>
+  );
+};
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <InitialLayout />
+    </AuthProvider>
+  );
 }
-
-export default Layout;

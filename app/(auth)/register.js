@@ -1,30 +1,46 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '../../utils/supabase';
 import { COLORS, SIZES, FONT } from '../../constants';
 
+const API_URL = 'http://10.0.2.2:3000';
+
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const params = useLocalSearchParams();
+  const [email, setEmail] = useState(params.email || '');
+  const [password, setPassword] = useState(params.password || '');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function signUpWithEmail() {
-    setLoading(true);
-    const { error, data } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      Alert.alert(error.message);
-    } else if (!data.session) {
-      Alert.alert('Success', 'Account created! You can now log in.');
-      router.back();
+    if (!email || !email.includes('@')) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
     }
-    
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Your password must be at least 6 characters long.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        Alert.alert('Success', 'Account created! You can now log in.');
+        router.back();
+      } else {
+        Alert.alert('Error', data.error);
+      }
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    }
     setLoading(false);
   }
 

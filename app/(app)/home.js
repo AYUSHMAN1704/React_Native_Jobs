@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Alert } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,10 +10,20 @@ import {
   ScreenHeaderBtn,
   Welcome,
 } from "../../components";
+import { useAuth } from "../../context/AuthContext";
 
 const Home = () => {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("");
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      Alert.alert('Error signing out', error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
@@ -25,7 +35,11 @@ const Home = () => {
             <ScreenHeaderBtn iconUrl={icons.menu} dimension='60%' />
           ),
           headerRight: () => (
-            <ScreenHeaderBtn iconUrl={images.profile} dimension='100%' />
+            <ScreenHeaderBtn 
+              iconUrl={images.profile} 
+              dimension='100%' 
+              handlePress={handleSignOut} 
+            />
           ),
           headerTitle: "",
         }}

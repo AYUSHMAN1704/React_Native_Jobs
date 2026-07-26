@@ -2,23 +2,54 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '../../utils/supabase';
 import { COLORS, SIZES, FONT } from '../../constants';
+import { useAuth } from '../../context/AuthContext';
+
+const API_URL = 'http://10.0.2.2:3000';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { signIn } = useAuth();
 
   async function signInWithEmail() {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (!email || !email.includes('@')) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
 
-    if (error) Alert.alert(error.message);
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        await signIn(data.user, data.token);
+      } else {
+        if (data.error === 'Invalid login credentials') {
+          Alert.alert(
+            'User Not Found',
+            'It looks like you are a new user. Please sign up to create an account!',
+            [
+              { 
+                text: 'Go to Sign Up', 
+                onPress: () => router.push({ pathname: '/register', params: { email, password } }) 
+              }
+            ]
+          );
+        } else {
+          Alert.alert('Error', data.error);
+        }
+      }
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    }
     setLoading(false);
   }
 

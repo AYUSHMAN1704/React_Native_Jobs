@@ -1,31 +1,50 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../utils/supabase';
+import * as SecureStore from 'expo-secure-store';
 
 const AuthContext = createContext({});
+const API_URL = 'http://10.0.2.2:3000';
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setInitialized(true);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
+    const loadSession = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('userToken');
+        if (token) {
+          const response = await fetch(`${API_URL}/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setSession(data.user);
+          } else {
+            await SecureStore.deleteItemAsync('userToken');
+            setSession(null);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setInitialized(true);
       }
-    );
-
-    return () => {
-      subscription.unsubscribe();
     };
+    loadSession();
   }, []);
 
+  const signIn = async (user, token) => {
+    await SecureStore.setItemAsync('userToken', token);
+    setSession(user);
+  };
+
+  const signOut = async () => {
+    await SecureStore.deleteItemAsync('userToken');
+    setSession(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ session, initialized }}>
+    <AuthContext.Provider value={{ session, initialized, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

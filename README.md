@@ -1,56 +1,97 @@
-# Welcome to your Expo app 👋
+# React Native Jobs App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A full-stack React Native application that helps users find and apply for jobs. It features a custom backend connected to a Neon PostgreSQL database, secure JWT authentication, and real-time job fetching via the JSearch API.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+- **Custom User Authentication:** Full auth flow (Sign Up, Log In, Log Out) secured with JSON Web Tokens (JWT) and Bcrypt password hashing.
+- **Protected Routing:** Expo Router is configured to automatically redirect unauthenticated users to the login screen, and logged-in users to the main app.
+- **First-Time Username Setup:** After signing up, users are prompted to choose a unique `@username`, with smart suggestions generated from their email.
+- **Live Job Data:** Integrates with the [JSearch API via RapidAPI](https://rapidapi.com/letscrape-6bRBa3QG1q/api/jsearch) to display real, live job listings (Popular & Nearby jobs).
+- **Search Functionality:** Users can search for specific job titles or keywords and view paginated results.
+- **Job Details:** Comprehensive job view featuring tabs for About, Qualifications, and Responsibilities.
+- **Applied Jobs Tracking:** Users can apply for jobs directly from the app. Applications are securely saved to the Neon PostgreSQL database and can be reviewed or removed from the dedicated "Applied Jobs" screen.
 
-   ```bash
-   npm install
-   ```
+## 🛠️ Tech Stack
 
-2. Start the app
+### Frontend
+- **React Native** & **Expo** (managed workflow)
+- **Expo Router** for file-based routing and navigation
+- **Expo SecureStore** for safe local JWT storage
+- **Custom React Hooks** (e.g., `useFetch` for API calls)
 
-   ```bash
-   npx expo start
-   ```
+### Backend
+- **Node.js** & **Express** server
+- **PostgreSQL** hosted on [Neon](https://neon.tech/)
+- **pg** (node-postgres) for database queries
+- **jsonwebtoken** for secure session management
+- **bcryptjs** for hashing passwords
 
-In the output, you'll find options to open the app in a
+## 📂 Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+.
+├── app/
+│   ├── (auth)/             # Authentication screens (Login, Register)
+│   ├── (app)/              # Protected main app screens (Home, Search, Details, Applied Jobs)
+│   └── _layout.js          # Root layout with auth routing logic
+├── backend/
+│   ├── server.js           # Express API server connecting to Neon Postgres
+│   └── .env                # Backend environment variables (DATABASE_URL)
+├── components/             # Reusable UI components (Cards, Headers, Footer)
+├── context/
+│   └── AuthContext.js      # Global state for user session and authentication
+├── hook/
+│   └── useFetch.js         # Custom hook for fetching jobs from RapidAPI
+└── constants/              # Theme colors, fonts, icons, and images
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## ⚙️ Setup & Installation
 
-### Other setup steps
+### 1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd React_Native_Jobs
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 2. Frontend Setup
+Install frontend dependencies:
+```bash
+npm install
+```
 
-## Learn more
+Create a `.env` file in the root directory for the JSearch API key:
+```env
+EXPO_PUBLIC_RAPID_API_KEY=your_rapidapi_key_here
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Backend Setup
+Navigate to the backend directory and install its dependencies:
+```bash
+cd backend
+npm install express cors pg bcryptjs jsonwebtoken dotenv
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Create a `.env` file inside the `backend/` directory:
+```env
+DATABASE_URL=your_neon_postgres_connection_string
+```
 
-## Join the community
+### 4. Running the App
 
-Join our community of developers creating universal apps.
+Start the backend server:
+```bash
+cd backend
+node server.js
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+In a new terminal window, start the Expo app:
+```bash
+npm run android
+# OR
+npm run ios
+# OR
+npm start
+```
+
+*Note: The frontend is currently configured to point to `http://10.0.2.2:3000` (the Android emulator's localhost alias) for API requests. If running on iOS or a physical device, update `API_URL` in `context/AuthContext.js` to your machine's local IP address.*

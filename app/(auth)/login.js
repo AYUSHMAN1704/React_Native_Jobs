@@ -3,9 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'reac
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES, FONT } from '../../constants';
-import { useAuth } from '../../context/AuthContext';
-
-const API_URL = 'http://10.0.2.2:3000';
+import { useAuth, API_URL } from '../../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');

@@ -23,9 +23,21 @@ const InitialLayout = () => {
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (session && inAuthGroup) {
-      router.replace('/home');
+    if (session) {
+      // User is logged in
+      if (inAuthGroup) {
+        // Redirect away from auth screens
+        if (!session.username) {
+          router.replace('/setup-username');
+        } else {
+          router.replace('/home');
+        }
+      } else if (!session.username && segments[1] !== 'setup-username') {
+        // Logged in but no username yet — force setup
+        router.replace('/setup-username');
+      }
     } else if (!session && !inAuthGroup) {
+      // User is not logged in
       router.replace('/login');
     }
   }, [session, initialized, fontsLoaded, segments]);

@@ -3,8 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'reac
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES, FONT } from '../../constants';
-
-const API_URL = 'http://10.0.2.2:3000';
+import { API_URL } from '../../context/AuthContext';
 
 export default function Register() {
   const params = useLocalSearchParams();

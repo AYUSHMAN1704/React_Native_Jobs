@@ -4,6 +4,8 @@ import * as SecureStore from 'expo-secure-store';
 const AuthContext = createContext({});
 const API_URL = 'http://10.0.2.2:3000';
 
+export { API_URL };
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [initialized, setInitialized] = useState(false);
@@ -43,8 +45,16 @@ export function AuthProvider({ children }) {
     setSession(null);
   };
 
+  const updateSession = (updatedUser) => {
+    setSession(updatedUser);
+  };
+
+  const getToken = async () => {
+    return await SecureStore.getItemAsync('userToken');
+  };
+
   return (
-    <AuthContext.Provider value={{ session, initialized, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, initialized, signIn, signOut, updateSession, getToken }}>
       {children}
     </AuthContext.Provider>
   );
